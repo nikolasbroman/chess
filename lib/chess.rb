@@ -1,6 +1,7 @@
 
 class Board
   def initialize
+    @player = "w"
     @board = [
       [Rook.new("b"), Knight.new("b"), Bishop.new("b"), Queen.new("b"),
       King.new("b"), Bishop.new("b"), Knight.new("b"), Rook.new("b")],
@@ -36,6 +37,29 @@ class Board
     end
     puts letters
   end
+
+  def move(from, to)
+    if
+      from[0] !~ /[a-h]/ ||
+      from[1] !~ /[1-8]/ ||
+      to[0] !~ /[a-h]/ ||
+      to[1] !~ /[1-8]/
+      return "error_outside_board"
+    elsif
+      get_piece(from).nil? ||
+      get_piece(from).player != @player
+      return "error_not_player_piece"
+    end
+  end
+
+  private
+
+  def get_piece(position)
+    row = (position[1].to_i - 8).abs
+    column = position[0].ord - 97
+    @board[row][column]
+  end
+
 end
 
 
@@ -105,7 +129,7 @@ class King
 end
 
 class Pawn
-  attr_reader :symbol
+  attr_reader :symbol, :player
   
   def initialize(player)
     @player = player
