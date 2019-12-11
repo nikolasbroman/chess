@@ -1,5 +1,7 @@
 
 class Board
+  #attr_accessor :board #for RSpec tests
+
   def initialize
     @player = "w"
     @board = [
@@ -39,27 +41,100 @@ class Board
   end
 
   def move(from, to)
-    if
-      from[0] !~ /[a-h]/ ||
-      from[1] !~ /[1-8]/ ||
-      to[0] !~ /[a-h]/ ||
-      to[1] !~ /[1-8]/
+    if from[0] !~ /[a-h]/ || from[1] !~ /[1-8]/ || to[0] !~ /[a-h]/ || to[1] !~ /[1-8]/
       return "error_outside_board"
-    elsif
-      get_piece(from).nil? ||
-      get_piece(from).player != @player
+    end
+
+    from = convert_to_row_and_column_indexes(from)
+    to = convert_to_row_and_column_indexes(to)
+    piece = get_piece(from)
+
+    if piece.nil? || piece.player != @player
       return "error_not_player_piece"
+    end
+    
+    case piece.check_move(@board, from, to)
+    when "illegal"
+      return "error_illegal_move"
+    when "promotion"
+      #todo: add a way to promote pawn into desired piece
+    when "en_passantable"
+      #todo: make pawn's @en_passantable false after one enemy move
+    when "en_passant_capture"
+      #todo: capture the pawn one row behind current pawn's to position
+    when "castling"
+      #(make possible only by applying the move to king)
+      #todo: move rook first, then let king make his move below
+    end
+      @board[ from[:row] ][ from[:column] ] = nil
+      @board[ to[:row] ][ to[:column] ] = piece
+  end
+
+  def convert_to_row_and_column_indexes(pos)
+    row = (pos[1].to_i - 8).abs
+    column = pos[0].ord - 97
+    {row: row, column: column}
+  end
+
+  def get_piece(pos)
+    if pos.is_a?(String) #for RSpec testing
+      pos = convert_to_row_and_column_indexes(pos)
+    end
+    @board[ pos[:row] ][ pos[:column] ]
+  end
+end
+
+
+
+class Pawn
+  attr_reader :symbol, :player, :en_passantable
+  
+  def initialize(player)
+    @player = player
+    @en_passantable = false
+    if player == "w"
+      @symbol = "♟"
+      @starting_row = 6
+    else
+      @symbol = "♙"
+      @starting_row = 1
     end
   end
 
-  private
+  def check_move(board, from, to)
+    if @player == "w"
+      if from[:row] == to[:row] + 2 && from[:column] == to[:column]
+        if board[to[:row]][to[:column]].nil?
+          from[:row] == @starting_row ? "ok" : "illegal"
+          #todo: add @en_passantable = true
+          #todo: and return "en_passantable"
+        end
+      elsif from[:row] == to[:row] + 1
+        if from[:column] == to[:column]
+          board[to[:row]][to[:column]] == nil ? "ok" : "illegal"
+        elsif to[:column] == from[:column] + 1 || to[:column] == from[:column] - 1
+          if board[to[:row]][to[:column]].player == "b"
+            return "ok"
+          elsif board[to[:row]][to[:column]].nil?
+            piece_behind = board[to[:row]][to[:column]-1].player
+            if piece_behind.is_a?(Pawn) && piece_behind.en_passantable
+              return "en_passant_capture"
+            else
+              return "illegal"
+            end
+          else
+            return "illegal"
+          end
+        else
+          return "illegal"
+        end
+      else
+        return "illegal"
+      end
+    else
 
-  def get_piece(position)
-    row = (position[1].to_i - 8).abs
-    column = position[0].ord - 97
-    @board[row][column]
+    end
   end
-
 end
 
 
@@ -121,19 +196,6 @@ class King
   def initialize(player)
     @player = player
     player == "w" ? @symbol = "♚" : @symbol = "♔"
-  end
-
-  def move_ok?(board)
-    #check if move is possible
-  end
-end
-
-class Pawn
-  attr_reader :symbol, :player
-  
-  def initialize(player)
-    @player = player
-    player == "w" ? @symbol = "♟" : @symbol = "♙"
   end
 
   def move_ok?(board)
