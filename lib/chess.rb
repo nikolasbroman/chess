@@ -66,8 +66,9 @@ class Board
       #(make possible only by applying the move to king)
       #todo: move rook first, then let king make his move below
     end
-      @board[ from[:row] ][ from[:column] ] = nil
-      @board[ to[:row] ][ to[:column] ] = piece
+
+    @board[from[:row]][from[:column]] = nil
+    @board[to[:row]][to[:column]] = piece
   end
 
   def convert_to_row_and_column_indexes(pos)
