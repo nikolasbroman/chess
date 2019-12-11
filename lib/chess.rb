@@ -1,6 +1,6 @@
 
 class Board
-  #attr_accessor :board #for RSpec tests
+  attr_accessor :player #for RSpec tests
 
   def initialize
     @player = "w"
@@ -102,6 +102,37 @@ class Pawn
   end
 
   def check_move(board, from, to)
+    @player == "w" ? i = 1 : i = -1
+
+    if from[:row] == to[:row] + 2*i && from[:column] == to[:column]
+      if board[to[:row]][to[:column]].nil?
+        from[:row] == @starting_row ? "ok" : "illegal"
+        #todo: add @en_passantable = true
+        #todo: and return "en_passantable"
+      end
+    elsif from[:row] == to[:row] + 1*i
+      if from[:column] == to[:column]
+        board[to[:row]][to[:column]] == nil ? "ok" : "illegal"
+      elsif to[:column] == from[:column] + 1 || to[:column] == from[:column] - 1
+        if board[to[:row]][to[:column]].nil?
+          piece_behind = board[to[:row]-1*1][to[:column]]
+          if piece_behind.is_a?(Pawn) && piece_behind.en_passantable
+            return "en_passant_capture"
+          else
+            return "illegal"
+          end
+        else
+          board[to[:row]][to[:column]].player != @player ? "ok" : "illegal"
+        end
+      else
+        return "illegal"
+      end
+    else
+      return "illegal"
+    end
+  end
+
+  def check_move2(board, from, to)
     if @player == "w"
       if from[:row] == to[:row] + 2 && from[:column] == to[:column]
         if board[to[:row]][to[:column]].nil?
@@ -131,7 +162,7 @@ class Pawn
       else
         return "illegal"
       end
-    else
+    else #todo: add black pawn movement, try to do with minimal extra code
 
     end
   end

@@ -67,5 +67,37 @@ RSpec.describe Board do
       end
         
     end
+
+    describe "black pawn" do
+
+      it "moves forward 1 step" do
+        board = Board.new
+        board.player = "b"
+        pawn_d7 = board.get_piece("d7")
+        board.move("d7", "d6")
+        expect(board.get_piece("d6")).to eql(pawn_d7)
+      end
+
+      it "moves forward 2 steps" do
+        board = Board.new
+        board.player = "b"
+        pawn_d7 = board.get_piece("d7")
+        board.move("d7", "d5")
+        expect(board.get_piece("d5")).to eql(pawn_d7)
+      end
+
+      it "gives error for illegal moves" do
+        board = Board.new
+        board.player = "b"
+        pawn_d7 = board.get_piece("d7")
+        board.move("d7", "d5")
+        expect(board.move("d5", "d6")).to eql("error_illegal_move")
+        expect(board.move("d5", "d3")).to eql("error_illegal_move")
+        expect(board.move("d5", "a5")).to eql("error_illegal_move")
+        expect(board.move("d5", "c4")).to eql("error_illegal_move")
+        expect(board.move("d5", "e4")).to eql("error_illegal_move")
+      end
+
+    end
   end
 end
