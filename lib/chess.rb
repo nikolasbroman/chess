@@ -88,7 +88,8 @@ end
 
 
 class Pawn
-  attr_reader :symbol, :player, :en_passantable
+  attr_reader :symbol, :player
+  attr_accessor :en_passantable
   
   def initialize(player)
     @player = player
