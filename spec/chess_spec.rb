@@ -65,6 +65,17 @@ RSpec.describe Board do
         board.move("a2", "a4")
         expect(board.move("a4", "a3")).to eql("error_illegal_move")
       end
+
+      it "does non-special captures correctly" do
+        board = Board.new
+        pawn_d2 = board.get_piece("d2")
+        board.move("d2", "d4")
+        board.player = "b"
+        board.move("e7", "e5")
+        board.player = "w"
+        board.move("d4", "e5")
+        expect(board.get_piece("e5")).to eql(pawn_d2)
+      end
         
     end
 
@@ -96,6 +107,19 @@ RSpec.describe Board do
         expect(board.move("d5", "a5")).to eql("error_illegal_move")
         expect(board.move("d5", "c4")).to eql("error_illegal_move")
         expect(board.move("d5", "e4")).to eql("error_illegal_move")
+      end
+
+      it "does non-special captures correctly" do
+        board = Board.new
+        pawn_e7 = board.get_piece("e7")
+        board.move("d2", "d4")
+        board.player = "b"
+        board.move("e7", "e6")
+        board.player = "w"
+        board.move("d4", "d5")
+        board.player = "b"
+        board.move("e6", "d5")
+        expect(board.get_piece("d5")).to eql(pawn_e7)
       end
 
     end
