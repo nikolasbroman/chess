@@ -123,5 +123,48 @@ RSpec.describe Board do
       end
 
     end
+
+    describe "knight" do
+      it "moves in L-patterns" do
+        board = Board.new
+
+        knight_b1 = board.get_piece("b1")
+        board.move("b1", "c3")
+        expect(board.get_piece("c3")).to eql(knight_b1)
+        board.move("c3", "e4")
+        expect(board.get_piece("e4")).to eql(knight_b1)
+        board.move("e4", "d6")
+        expect(board.get_piece("d6")).to eql(knight_b1)
+        board.move("d6", "b5")
+        expect(board.get_piece("b5")).to eql(knight_b1)
+
+        board.player = "b"
+        knight_b8 = board.get_piece("b8")
+        board.move("b8", "c6")
+        expect(board.get_piece("c6")).to eql(knight_b8)
+        board.move("c6", "e5")
+        expect(board.get_piece("e5")).to eql(knight_b8)
+        board.move("e5", "f3")
+        expect(board.get_piece("f3")).to eql(knight_b8)
+        board.move("f3", "d4")
+        expect(board.get_piece("d4")).to eql(knight_b8)
+      end
+
+      it "gives error, if movemenet is not L-pattern" do
+        board = Board.new
+
+        knight_b1 = board.get_piece("b1")
+        expect(board.move("b1", "b3")).to eql("error_illegal_move")
+        board.move("b1", "c3")
+        expect(board.move("c3", "e2")).to eql("error_illegal_move")
+
+        board.player = "b"
+        knight_b8 = board.get_piece("b8")
+        expect(board.move("b8", "d7")).to eql("error_illegal_move")
+        board.move("b8", "c6")
+        board.move("c6", "e5")
+        expect(board.move("e5", "f7")).to eql("error_illegal_move")
+      end
+    end
   end
 end

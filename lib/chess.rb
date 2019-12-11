@@ -86,6 +86,30 @@ class Board
 end
 
 
+class Knight
+  attr_reader :symbol, :player
+  
+  def initialize(player)
+    @player = player
+    player == "w" ? @symbol = "♞" : @symbol = "♘"
+  end
+
+  def check_move(board, from, to)
+    if board[to[:row]][to[:column]].nil? || board[to[:row]][to[:column]].player != @player
+      if (from[:row] - to[:row]).abs == 2
+        (from[:column] - to[:column]).abs == 1 ? "ok" : "illegal"
+      elsif (from[:column] - to[:column]).abs == 2
+        (from[:row] - to[:row]).abs == 1 ? "ok" : "illegal"
+      else
+        return "illegal"
+      end
+    else
+      return "illegal"
+    end
+  end
+end
+
+
 
 class Pawn
   attr_reader :symbol, :player
@@ -108,13 +132,13 @@ class Pawn
 
     if from[:row] == to[:row] + 2*i && from[:column] == to[:column]
       if board[to[:row]][to[:column]].nil?
-        from[:row] == @starting_row ? "ok" : "illegal"
+        return from[:row] == @starting_row ? "ok" : "illegal"
         #todo: add @en_passantable = true
         #todo: and return "en_passantable"
       end
     elsif from[:row] == to[:row] + 1*i
       if from[:column] == to[:column]
-        board[to[:row]][to[:column]] == nil ? "ok" : "illegal"
+        return board[to[:row]][to[:column]] == nil ? "ok" : "illegal"
       elsif to[:column] == from[:column] + 1 || to[:column] == from[:column] - 1
         if board[to[:row]][to[:column]].nil?
           piece_behind = board[to[:row]-1*1][to[:column]]
@@ -124,7 +148,7 @@ class Pawn
             return "illegal"
           end
         else
-          board[to[:row]][to[:column]].player != @player ? "ok" : "illegal"
+          return board[to[:row]][to[:column]].player != @player ? "ok" : "illegal"
         end
       else
         return "illegal"
@@ -142,23 +166,6 @@ class Rook
   def initialize(player)
     @player = player
     player == "w" ? @symbol = "♜" : @symbol = "♖"
-  end
-
-  def move_ok?(board)
-    #check if move is possible
-  end
-end
-
-class Knight
-  attr_reader :symbol
-  
-  def initialize(player)
-    @player = player
-    player == "w" ? @symbol = "♞" : @symbol = "♘"
-  end
-
-  def move_ok?(board)
-    #check if move is possible
   end
 end
 
