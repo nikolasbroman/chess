@@ -131,41 +131,6 @@ class Pawn
       return "illegal"
     end
   end
-
-  def check_move2(board, from, to)
-    if @player == "w"
-      if from[:row] == to[:row] + 2 && from[:column] == to[:column]
-        if board[to[:row]][to[:column]].nil?
-          from[:row] == @starting_row ? "ok" : "illegal"
-          #todo: add @en_passantable = true
-          #todo: and return "en_passantable"
-        end
-      elsif from[:row] == to[:row] + 1
-        if from[:column] == to[:column]
-          board[to[:row]][to[:column]] == nil ? "ok" : "illegal"
-        elsif to[:column] == from[:column] + 1 || to[:column] == from[:column] - 1
-          if board[to[:row]][to[:column]].player == "b"
-            return "ok"
-          elsif board[to[:row]][to[:column]].nil?
-            piece_behind = board[to[:row]][to[:column]-1].player
-            if piece_behind.is_a?(Pawn) && piece_behind.en_passantable
-              return "en_passant_capture"
-            else
-              return "illegal"
-            end
-          else
-            return "illegal"
-          end
-        else
-          return "illegal"
-        end
-      else
-        return "illegal"
-      end
-    else #todo: add black pawn movement, try to do with minimal extra code
-
-    end
-  end
 end
 
 
