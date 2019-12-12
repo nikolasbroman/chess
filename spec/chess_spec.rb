@@ -166,5 +166,54 @@ RSpec.describe Board do
         expect(board.move("e5", "f7")).to eql("error_illegal_move")
       end
     end
+
+    describe "bishop" do
+      it "moves diagonally" do
+        board = Board.new
+
+        bishop_c1 = board.get_piece("c1")
+        board.move("d2", "d3")
+        board.move("c1", "e3")
+        board.move("e3", "a7")
+        board.move("a7", "b8")
+        expect(board.get_piece("b8")).to eql(bishop_c1)
+
+        board.player = "b"
+        bishop_f8 = board.get_piece("f8")
+        board.move("g7", "g6")
+        board.move("f8", "h6")
+        board.move("h6", "f4")
+        board.move("f4", "e5")
+        board.move("e5", "h2")
+        expect(board.get_piece("h2")).to eql(bishop_f8)
+      end
+
+      it "gives error, when movement isn't diagonal" do
+        board = Board.new
+
+        bishop_c1 = board.get_piece("c1")
+        board.move("d2", "d3")
+        board.move("c1", "e3")
+        expect(board.move("e3", "e5")).to eql("error_illegal_move")
+        expect(board.move("e3", "a3")).to eql("error_illegal_move")
+      end
+
+      it "gives error, if a piece is blocking the way" do
+        board = Board.new
+
+        bishop_c1 = board.get_piece("c1")
+        expect(board.move("c1", "b2")).to eql("error_illegal_move")
+        board.move("d2", "d3")
+        board.move("f2", "f4")
+        expect(board.move("c1", "h6")).to eql("error_illegal_move")
+
+        board.player = "b"
+        bishop_f8 = board.get_piece("f8")
+        expect(board.move("f8", "h6")).to eql("error_illegal_move")
+        board.move("e7", "e6")
+        board.move("f8", "a3")
+        expect(board.move("a3", "c1")).to eql("error_illegal_move")
+      end
+    end
   end
 end

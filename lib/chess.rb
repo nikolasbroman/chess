@@ -86,6 +86,41 @@ class Board
 end
 
 
+class Bishop
+  attr_reader :symbol, :player
+  
+  def initialize(player)
+    @player = player
+    player == "w" ? @symbol = "♝" : @symbol = "♗"
+  end
+
+  def check_move(board, from, to)
+    if board[to[:row]][to[:column]].nil? || board[to[:row]][to[:column]].player != @player
+      if (to[:row] - from[:row]).abs == (to[:column] - from[:column]).abs
+        if path_is_free?(board, from, to)
+          return "ok"
+        end
+      end
+    end
+      return "illegal"
+  end
+
+  def path_is_free?(board, from, to)
+    to[:row] > from[:row] ? r = 1 : r = -1
+    to[:column] > from[:column] ? c = 1 : c = -1
+    row = from[:row]
+    column = from[:column]
+    loop do 
+      row += 1 * r
+      column += 1 * c
+      break if row == to[:row] && column == to[:column]
+      return false if board[row][column] != nil
+    end
+    true
+  end
+end
+
+
 class Knight
   attr_reader :symbol, :player
   
@@ -166,19 +201,6 @@ class Rook
   def initialize(player)
     @player = player
     player == "w" ? @symbol = "♜" : @symbol = "♖"
-  end
-end
-
-class Bishop
-  attr_reader :symbol
-  
-  def initialize(player)
-    @player = player
-    player == "w" ? @symbol = "♝" : @symbol = "♗"
-  end
-
-  def move_ok?(board)
-    #check if move is possible
   end
 end
 
