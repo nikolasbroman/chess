@@ -215,5 +215,54 @@ RSpec.describe Board do
         expect(board.move("a3", "c1")).to eql("error_illegal_move")
       end
     end
+
+    describe "rook" do
+      it "moves horizontally and vertically" do
+        board = Board.new
+
+        rook_a1 = board.get_piece("a1")
+        board.move("a2", "a4")
+        board.move("a1", "a3")
+        board.move("a3", "h3")
+        board.move("h3", "h7")
+        board.move("h7", "h5")
+        board.move("h5", "b5")
+        expect(board.get_piece("b5")).to eql(rook_a1)
+        
+        board.player = "b"
+        rook_h8 = board.get_piece("h8")
+        board.move("h8", "h2")
+        board.move("h2", "h1")
+        board.move("h1", "g1")
+        board.move("g1", "g2")
+        board.move("g2", "h2")
+        board.move("h2", "h4")
+        expect(board.get_piece("h4")).to eql(rook_h8)
+      end
+
+      it "gives error, when movement isn't horizontal or vertical" do
+        board = Board.new
+
+        rook_a1 = board.get_piece("a1")
+        board.move("a2", "a4")
+        board.move("a1", "a3")
+        expect(board.move("a3", "b4")).to eql("error_illegal_move")
+        expect(board.move("a3", "c4")).to eql("error_illegal_move")
+      end
+
+      it "gives error, if a piece is blocking the way" do
+        board = Board.new
+
+        rook_a1 = board.get_piece("a1")
+        expect(board.move("a1", "a3")).to eql("error_illegal_move")
+        board.move("a2", "a4")
+        board.move("a1", "a3")
+        board.move("a3", "c3")
+        expect(board.move("c3", "c8")).to eql("error_illegal_move")
+        expect(board.move("c3", "c2")).to eql("error_illegal_move")
+        board.move("c3", "c4")
+        expect(board.move("c4", "a4")).to eql("error_illegal_move")
+      end
+    end
   end
 end
