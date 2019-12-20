@@ -87,6 +87,71 @@ end
 
 
 
+class Queen
+  attr_reader :symbol, :player
+  
+  def initialize(player)
+    @player = player
+    player == "w" ? @symbol = "♛" : @symbol = "♕"
+  end
+
+  def check_move(board, from, to)
+    if board[to[:row]][to[:column]].nil? || board[to[:row]][to[:column]].player != @player
+      
+      if to[:row] == from[:row] || to[:column] == from[:column]
+        if straight_path_is_free?(board, from, to)
+          return "ok"
+        end
+
+      elsif (to[:row] - from[:row]).abs == (to[:column] - from[:column]).abs
+        if diagonal_path_is_free?(board, from, to)
+          return "ok"
+        end
+      end
+
+    end
+    return "illegal"
+  end
+
+
+  def diagonal_path_is_free?(board, from, to)
+    to[:row] > from[:row] ? r = 1 : r = -1
+    to[:column] > from[:column] ? c = 1 : c = -1
+    row = from[:row]
+    column = from[:column]
+    loop do 
+      row += 1 * r
+      column += 1 * c
+      break if row == to[:row] && column == to[:column]
+      return false if board[row][column] != nil
+    end
+    true
+  end
+
+  def straight_path_is_free?(board, from, to)
+    r = 0
+    r = 1 if to[:row] > from[:row]
+    r = -1 if to[:row] < from[:row]
+
+    c = 0
+    c = 1 if to[:column] > from[:column]
+    c = -1 if to[:column] < from[:column]
+
+    row = from[:row]
+    column = from[:column]
+    loop do 
+      row += 1 * r
+      column += 1 * c
+      break if row == to[:row] && column == to[:column]
+      return false if board[row][column] != nil
+    end
+    true
+  end
+end
+
+
+
+
 class Rook
   attr_reader :symbol, :player
   
@@ -103,7 +168,7 @@ class Rook
         end
       end
     end
-      return "illegal"
+    return "illegal"
   end
 
   def path_is_free?(board, from, to)
@@ -145,7 +210,7 @@ class Bishop
         end
       end
     end
-      return "illegal"
+    return "illegal"
   end
 
   def path_is_free?(board, from, to)
@@ -240,21 +305,8 @@ end
 
 
 
-class Queen
-  attr_reader :symbol
-  
-  def initialize(player)
-    @player = player
-    player == "w" ? @symbol = "♛" : @symbol = "♕"
-  end
-
-  def move_ok?(board)
-    #check if move is possible
-  end
-end
-
 class King
-  attr_reader :symbol
+  attr_reader :symbol, :player
 
   def initialize(player)
     @player = player
