@@ -323,5 +323,66 @@ RSpec.describe Board do
         expect(board.move("g5", "c3")).to eql("error_illegal_move")
       end
     end
+
+    describe "king" do
+      it "moves one square horizontally, vertically and diagonally" do
+        board = Board.new
+
+        king_e1 = board.get_piece("e1")
+        board.move("d2", "d4")
+        board.move("e1", "d2")
+        board.move("d2", "e3")
+        board.move("e3", "d3")
+        board.move("d3", "c3")
+        board.move("c3", "c4")
+        expect(board.get_piece("c4")).to eql(king_e1)
+
+        board.player = "b"
+        king_e8 = board.get_piece("e8")
+        board.move("f7", "f6")
+        board.move("e8", "f7")
+        board.move("f7", "g6")
+        board.move("g6", "h6")
+        board.move("h6", "g5")
+        board.move("g5", "g4")
+        expect(board.get_piece("g4")).to eql(king_e8)
+      end
+
+      it "gives error, when trying to move more than one square" do
+        board = Board.new
+
+        board.move("d2", "d4")
+        board.move("e1", "d2")
+        expect(board.move("d2", "b4")).to eql("error_illegal_move")
+        expect(board.move("d2", "g5")).to eql("error_illegal_move")
+        board.move("d2", "c3")
+        expect(board.move("c3", "a3")).to eql("error_illegal_move")
+        expect(board.move("c3", "h3")).to eql("error_illegal_move")
+        expect(board.move("c3", "c5")).to eql("error_illegal_move")
+
+        board.player = "b"
+        board.move("d7", "d5")
+        board.move("e8", "d7")
+        expect(board.move("d7", "a4")).to eql("error_illegal_move")
+        expect(board.move("d7", "g4")).to eql("error_illegal_move")
+        board.move("d7", "e6")
+        expect(board.move("e6", "e4")).to eql("error_illegal_move")
+      end
+
+      it "gives error, if a piece is blocking the way" do
+        board = Board.new
+
+        expect(board.move("e1", "d1")).to eql("error_illegal_move")
+        expect(board.move("e1", "d2")).to eql("error_illegal_move")
+        expect(board.move("e1", "e2")).to eql("error_illegal_move")
+        expect(board.move("e1", "f2")).to eql("error_illegal_move")
+        expect(board.move("e1", "f1")).to eql("error_illegal_move")
+
+        board.player = "b"
+        expect(board.move("e8", "d7")).to eql("error_illegal_move")
+        expect(board.move("e8", "e7")).to eql("error_illegal_move")
+        expect(board.move("e8", "f7")).to eql("error_illegal_move")
+      end
+    end
   end
 end

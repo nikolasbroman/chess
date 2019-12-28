@@ -87,6 +87,34 @@ end
 
 
 
+class King
+  attr_reader :symbol, :player
+
+  def initialize(player)
+    @player = player
+    player == "w" ? @symbol = "♚" : @symbol = "♔"
+  end
+
+  def check_move(board, from, to)
+    if board[to[:row]][to[:column]].nil? || board[to[:row]][to[:column]].player != @player
+      if to[:row] == from[:row] && (to[:column] - from[:column]).abs == 1
+        return "ok"
+      elsif to[:column] == from[:column] && (to[:row] - from[:row]).abs == 1
+        return "ok"
+      elsif (to[:row] - from[:row]).abs == 1 && (to[:column] - from[:column]).abs == 1
+        return "ok"
+      end
+    elsif @player == "w"
+      #check castling when white
+    else
+      #check castling when black
+    end
+    return "illegal"
+  end
+
+end
+
+
 class Queen
   attr_reader :symbol, :player
   
@@ -305,15 +333,3 @@ end
 
 
 
-class King
-  attr_reader :symbol, :player
-
-  def initialize(player)
-    @player = player
-    player == "w" ? @symbol = "♚" : @symbol = "♔"
-  end
-
-  def move_ok?(board)
-    #check if move is possible
-  end
-end
