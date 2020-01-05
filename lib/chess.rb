@@ -1,6 +1,6 @@
 
 class Board
-  attr_accessor :player #for RSpec tests
+  attr_accessor :player, :board #for RSpec tests
 
   def initialize
     @player = "w"
@@ -63,8 +63,7 @@ class Board
     when "en_passant_capture"
       #todo: capture the pawn one row behind current pawn's to position
     when "castling"
-      #(make possible only by applying the move to king)
-      #todo: move rook first, then let king make his move below
+      move_rook_next_to_king(from, to)
     end
 
     @board[from[:row]][from[:column]] = nil
@@ -83,8 +82,21 @@ class Board
     end
     @board[ pos[:row] ][ pos[:column] ]
   end
-end
 
+  def move_rook_next_to_king(from, to)
+    if to[:column] > from[:column]
+      rook_from_column = 7
+      rook_to_column = 5
+    else
+      rook_from_column = 0
+      rook_to_column = 3
+    end
+    rook = @board[from[:row]][rook_from_column]
+    @board[from[:row]][rook_from_column] = nil
+    @board[from[:row]][rook_to_column] = rook
+  end
+
+end
 
 
 class King
@@ -93,25 +105,53 @@ class King
   def initialize(player)
     @player = player
     player == "w" ? @symbol = "♚" : @symbol = "♔"
+    @has_moved = false
   end
 
   def check_move(board, from, to)
     if board[to[:row]][to[:column]].nil? || board[to[:row]][to[:column]].player != @player
-      if to[:row] == from[:row] && (to[:column] - from[:column]).abs == 1
-        return "ok"
-      elsif to[:column] == from[:column] && (to[:row] - from[:row]).abs == 1
-        return "ok"
-      elsif (to[:row] - from[:row]).abs == 1 && (to[:column] - from[:column]).abs == 1
+      if move_is_one_square_only?(board, from, to)
+        @has_moved = true
         return "ok"
       end
-    elsif @player == "w"
-      #check castling when white
-    else
-      #check castling when black
+    end
+    if @has_moved == false
+      if castling?(board, from, to)
+        @has_moved = true
+        return "castling"
+      end
     end
     return "illegal"
   end
 
+  def move_is_one_square_only?(board, from, to)
+    if to[:row] == from[:row] && (to[:column] - from[:column]).abs == 1
+      return true
+    elsif to[:column] == from[:column] && (to[:row] - from[:row]).abs == 1
+      return true
+    elsif (to[:row] - from[:row]).abs == 1 && (to[:column] - from[:column]).abs == 1
+      return true
+    else
+      return false
+    end
+  end
+
+  def castling?(board, from, to)
+    @player == "w" ? kings_row = 7 : kings_row = 0
+
+    if to[:row] == kings_row
+      if to[:column] == 6 && board[kings_row][7].is_a?(Rook) && board[kings_row][7].has_moved == false
+        if board[kings_row][5].nil? && board[kings_row][6].nil?
+          return true
+        end
+      elsif to[:column] == 2 && board[kings_row][0].is_a?(Rook) && board[kings_row][0].has_moved == false
+        if board[kings_row][1].nil? && board[kings_row][2].nil? && board[kings_row][3].nil?
+          return true
+        end
+      end
+    end
+    return false
+  end
 end
 
 
@@ -178,20 +218,20 @@ class Queen
 end
 
 
-
-
 class Rook
-  attr_reader :symbol, :player
+  attr_reader :symbol, :player, :has_moved
   
   def initialize(player)
     @player = player
     player == "w" ? @symbol = "♜" : @symbol = "♖"
+    @has_moved = false
   end
 
   def check_move(board, from, to)
     if board[to[:row]][to[:column]].nil? || board[to[:row]][to[:column]].player != @player
       if to[:row] == from[:row] || to[:column] == from[:column]
         if path_is_free?(board, from, to)
+          @has_moved = true
           return "ok"
         end
       end
@@ -281,7 +321,6 @@ class Knight
 end
 
 
-
 class Pawn
   attr_reader :symbol, :player
   attr_accessor :en_passantable
@@ -329,7 +368,4 @@ class Pawn
     end
   end
 end
-
-
-
 

@@ -383,6 +383,87 @@ RSpec.describe Board do
         expect(board.move("e8", "e7")).to eql("error_illegal_move")
         expect(board.move("e8", "f7")).to eql("error_illegal_move")
       end
+
+      describe "castling" do
+        it "works corrently, if King and Rook haven't moved yet" do
+          board = Board.new
+          king_e1 = board.get_piece("e1")
+          rook_h1 = board.get_piece("h1")
+          board.move("e2", "e3")
+          board.move("f1", "e2")
+          board.move("g1", "h3")
+          board.move("e1", "g1")
+          expect(board.get_piece("g1")).to eql(king_e1)
+          expect(board.get_piece("f1")).to eql(rook_h1)
+          
+          board = Board.new
+          king_e1 = board.get_piece("e1")
+          rook_a1 = board.get_piece("a1")
+          board.move("d2", "d3")
+          board.move("c1", "e3")
+          board.move("d1", "d2")
+          board.move("b1", "a3")
+          board.move("e1", "c1")
+          expect(board.get_piece("c1")).to eql(king_e1)
+          expect(board.get_piece("d1")).to eql(rook_a1)
+
+          board = Board.new
+          board.player = "b"
+          king_e8 = board.get_piece("e8")
+          rook_h8 = board.get_piece("h8")
+          board.move("e7", "e6")
+          board.move("f8", "e7")
+          board.move("g8", "h6")
+          board.move("e8", "g8")
+          expect(board.get_piece("g8")).to eql(king_e8)
+          expect(board.get_piece("f8")).to eql(rook_h8)
+          
+          board = Board.new
+          board.player = "b"
+          king_e8 = board.get_piece("e8")
+          rook_a8 = board.get_piece("a8")
+          board.move("d7", "d6")
+          board.move("c8", "e6")
+          board.move("d8", "d7")
+          board.move("b8", "a6")
+          board.move("e8", "c8")
+          expect(board.get_piece("c8")).to eql(king_e8)
+          expect(board.get_piece("d8")).to eql(rook_a8)
+        end
+
+        it "gives error, if a piece is blocking the way" do
+          board = Board.new
+
+          expect(board.move("e1", "g1")).to eql("error_illegal_move")
+          expect(board.move("e1", "c1")).to eql("error_illegal_move")
+
+          board.player = "b"
+          expect(board.move("e8", "g8")).to eql("error_illegal_move")
+          expect(board.move("e8", "c8")).to eql("error_illegal_move")
+        end
+
+        it "gives error, if King or Rook has moved already" do
+          board = Board.new
+          king_e1 = board.get_piece("e1")
+          rook_h1 = board.get_piece("h1")
+          board.move("e2", "e3")
+          board.move("f1", "e2")
+          board.move("g1", "h3")
+          board.move("e1", "f1")
+          board.move("f1", "e1")
+          expect(board.move("e1", "g1")).to eql("error_illegal_move")
+
+          board = Board.new
+          king_e1 = board.get_piece("e1")
+          rook_h1 = board.get_piece("h1")
+          board.move("e2", "e3")
+          board.move("f1", "e2")
+          board.move("g1", "h3")
+          board.move("h1", "g1")
+          board.move("g1", "h1")
+          expect(board.move("e1", "g1")).to eql("error_illegal_move")
+        end
+      end
     end
   end
 end
