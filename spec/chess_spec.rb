@@ -76,6 +76,20 @@ RSpec.describe Board do
         board.move("d4", "e5")
         expect(board.get_piece("e5")).to eql(pawn_d2)
       end
+
+      it "does en passant capture correctly" do
+        board = Board.new
+        pawn_f2 = board.get_piece("f2")
+        pawn_g7 = board.get_piece("g7")
+        board.move("f2", "f4")
+        board.move("f4", "f5")
+        board.player = "b"
+        board.move("g7", "g5")
+        board.player = "w"
+        board.move("f5", "g6")
+        expect(board.get_piece("g6")).to eql(pawn_f2)
+        expect(board.get_piece("g5")).to eql(nil)
+      end
         
     end
 
@@ -120,6 +134,21 @@ RSpec.describe Board do
         board.player = "b"
         board.move("e6", "d5")
         expect(board.get_piece("d5")).to eql(pawn_e7)
+      end
+
+      it "does en passant capture correctly" do
+        board = Board.new
+        pawn_g7 = board.get_piece("g7")
+        pawn_f2 = board.get_piece("f2")
+        board.player = "b"
+        board.move("g7", "g5")
+        board.move("g5", "g4")
+        board.player = "w"
+        board.move("f2", "f4")
+        board.player = "b"
+        board.move("g4", "f3")
+        expect(board.get_piece("f3")).to eql(pawn_g7)
+        expect(board.get_piece("f4")).to eql(nil)
       end
 
     end

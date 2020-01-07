@@ -61,6 +61,7 @@ class Board
     when "en_passantable"
       #todo: make pawn's @en_passantable false after one enemy move
     when "en_passant_capture"
+      capture_pawn_behind(from, to)
       #todo: capture the pawn one row behind current pawn's to position
     when "castling"
       move_rook_next_to_king(from, to)
@@ -96,6 +97,63 @@ class Board
     @board[from[:row]][rook_to_column] = rook
   end
 
+  def capture_pawn_behind(from, to)
+    @player == "w" ? i = 1 : i = -1
+    @board[to[:row] + 1 * i][to[:column]] = nil
+  end
+
+end
+
+
+class Pawn
+  attr_reader :symbol, :player
+  attr_accessor :en_passantable
+  
+  def initialize(player)
+    @player = player
+    @en_passantable = false
+    if player == "w"
+      @symbol = "♟"
+      @starting_row = 6
+    else
+      @symbol = "♙"
+      @starting_row = 1
+    end
+  end
+
+  def check_move(board, from, to)
+    @player == "w" ? i = 1 : i = -1
+
+    if from[:row] == to[:row] + 2*i && from[:column] == to[:column]
+      if board[to[:row]][to[:column]].nil?
+        if from[:row] == @starting_row
+          @en_passantable = true
+          return "en_passantable"
+        else
+          return "illegal"
+        end
+      end
+    elsif from[:row] == to[:row] + 1 * i
+      if from[:column] == to[:column]
+        return board[to[:row]][to[:column]] == nil ? "ok" : "illegal"
+      elsif to[:column] == from[:column] + 1 || to[:column] == from[:column] - 1
+        if board[to[:row]][to[:column]].nil?
+          piece_behind = board[to[:row] + 1 * i][to[:column]]
+          if piece_behind.is_a?(Pawn) && piece_behind.en_passantable
+            return "en_passant_capture"
+          else
+            return "illegal"
+          end
+        else
+          return board[to[:row]][to[:column]].player != @player ? "ok" : "illegal"
+        end
+      else
+        return "illegal"
+      end
+    else
+      return "illegal"
+    end
+  end
 end
 
 
@@ -320,52 +378,4 @@ class Knight
   end
 end
 
-
-class Pawn
-  attr_reader :symbol, :player
-  attr_accessor :en_passantable
-  
-  def initialize(player)
-    @player = player
-    @en_passantable = false
-    if player == "w"
-      @symbol = "♟"
-      @starting_row = 6
-    else
-      @symbol = "♙"
-      @starting_row = 1
-    end
-  end
-
-  def check_move(board, from, to)
-    @player == "w" ? i = 1 : i = -1
-
-    if from[:row] == to[:row] + 2*i && from[:column] == to[:column]
-      if board[to[:row]][to[:column]].nil?
-        return from[:row] == @starting_row ? "ok" : "illegal"
-        #todo: add @en_passantable = true
-        #todo: and return "en_passantable"
-      end
-    elsif from[:row] == to[:row] + 1*i
-      if from[:column] == to[:column]
-        return board[to[:row]][to[:column]] == nil ? "ok" : "illegal"
-      elsif to[:column] == from[:column] + 1 || to[:column] == from[:column] - 1
-        if board[to[:row]][to[:column]].nil?
-          piece_behind = board[to[:row]-1*1][to[:column]]
-          if piece_behind.is_a?(Pawn) && piece_behind.en_passantable
-            return "en_passant_capture"
-          else
-            return "illegal"
-          end
-        else
-          return board[to[:row]][to[:column]].player != @player ? "ok" : "illegal"
-        end
-      else
-        return "illegal"
-      end
-    else
-      return "illegal"
-    end
-  end
-end
 
