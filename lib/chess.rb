@@ -62,7 +62,6 @@ class Board
       #todo: make pawn's @en_passantable false after one enemy move
     when "en_passant_capture"
       capture_pawn_behind(from, to)
-      #todo: capture the pawn one row behind current pawn's to position
     when "castling"
       move_rook_next_to_king(from, to)
     end
