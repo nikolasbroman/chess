@@ -1,10 +1,13 @@
-
 class Board
   attr_accessor :player, :board #for RSpec tests
 
   def initialize
     @player = "w"
-    @board = [
+    @board = get_new_board
+  end
+
+  def get_new_board
+    [
       [Rook.new("b"), Knight.new("b"), Bishop.new("b"), Queen.new("b"),
       King.new("b"), Bishop.new("b"), Knight.new("b"), Rook.new("b")],
       [Pawn.new("b"), Pawn.new("b"), Pawn.new("b"), Pawn.new("b"),
@@ -18,6 +21,132 @@ class Board
       [Rook.new("w"), Knight.new("w"), Bishop.new("w"), Queen.new("w"),
       King.new("w"), Bishop.new("w"), Knight.new("w"), Rook.new("w")]
     ]
+  end
+
+  def new_game
+    print_opening_message
+    loop do
+      new_round
+      break unless another_round?
+    end
+    puts
+    puts "Thank you for playing."
+    puts
+  end
+
+  def print_opening_message
+    puts
+    puts " Hello & welcome to"
+    puts "-------------------"
+    puts "  ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖"
+    puts "  ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙"
+    puts "  ♙ ♙  CHESS  ♙ ♙"
+    puts "  ♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟"
+    puts "  ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜"
+    puts "-------------------"
+    puts " by Nikolas Broman"
+    puts
+    puts
+    puts "Instructions"
+    puts "-------------------"
+    puts "Move your pieces by typing"
+    puts "e.g. 'a2 a4' or 'b1 c3'."
+    puts
+    puts "You can do castling only by"
+    puts "applying the move to King."
+    puts
+    puts "You can surrender"
+    puts "by typing 'surrender'."
+    puts
+    puts "Have fun!"
+  end
+
+  def new_round
+    puts
+    puts
+    puts "New Round"
+    puts "-------------------"
+    puts
+    result = play_until_end
+    do_win if result == "win"
+    do_surrender if result == "surrender"
+  end
+
+  def another_round?
+    puts
+    puts "Play another round? (yes/no)"
+    loop do
+      input = gets.chomp.downcase
+      case input
+      when "yes", "y"
+        return true
+      when "no", "n"
+        return false
+      else
+        puts "Please answer yes or no:"
+      end
+    end
+  end
+
+  def play_until_end
+    loop do
+      print_board
+      print_player_turn
+      move_result = make_move
+      return move_result unless move_result == "ok"
+      change_player
+    end
+  end
+
+  def do_win
+    print_board
+    @player == "w" ? player_full = "White" : player_full = "Black"
+    puts "#{player_full} wins!"
+  end
+
+  def do_surrender
+    @player == "w" ? player_full = "White" : player_full = "Black"
+    puts "#{player_full} surrenders..."
+  end
+
+  def print_player_turn
+    if @player == "w"
+      puts "White's turn:"
+    else
+      puts "Black's turn:"
+    end
+  end
+
+  def make_move
+    loop do
+      player_move = gets.chomp.downcase
+      puts
+      if player_move == "surrender"
+        return "surrender"
+      elsif player_move !~ /^[a-h][1-8]\s*[a-h][1-8]$/
+        puts "Sorry, couldn't understand you."
+        puts "Please try again:"
+      else
+        from = player_move[0..1]
+        to = player_move[-2..-1]
+        move_result = move(from, to)
+        case move_result
+        when "error_not_player_piece"
+          @player == "w" ? enemy = "black" : enemy = "white"
+          puts "You can't move #{enemy}'s piece."
+          puts "Please try again:"
+        when "error_illegal_move"
+          puts "That move is illegal."
+          puts "Please try again:"
+        else
+          return move_result
+        end
+      end
+    end
+  end
+
+  def change_player
+    @player == "w" ? @player = "b" : @player = "w"
   end
 
   def print_board
@@ -38,12 +167,14 @@ class Board
       i -= 1
     end
     puts letters
+    puts
   end
 
   def move(from, to)
     if from[0] !~ /[a-h]/ || from[1] !~ /[1-8]/ || to[0] !~ /[a-h]/ || to[1] !~ /[1-8]/
       return "error_outside_board"
     end
+
 
     from = convert_to_row_and_column_indexes(from)
     to = convert_to_row_and_column_indexes(to)
@@ -66,8 +197,16 @@ class Board
       move_rook_next_to_king(from, to)
     end
 
+    if @board[to[:row]][to[:column]].is_a?(King)
+      return_value = "win"
+    else
+      return_value = "ok"
+    end
+
     @board[from[:row]][from[:column]] = nil
     @board[to[:row]][to[:column]] = piece
+    
+    return return_value
   end
 
   def convert_to_row_and_column_indexes(pos)
@@ -378,3 +517,5 @@ class Knight
 end
 
 
+board = Board.new
+board.new_game
